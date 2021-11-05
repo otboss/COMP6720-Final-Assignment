@@ -1,0 +1,4 @@
+
+
+class InvalidQueryError(Exception):
+  pass

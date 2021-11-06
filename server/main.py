@@ -16,6 +16,7 @@ class WebSocketController(WebSocket):
         #TODO : first message from user should be an auth        
         request: Request = ast.literal_eval(self.data)
 
+
         try:
           request.token = authentication_service.authenticate_user(request)
           if type(request.username) == str or type(request.password):

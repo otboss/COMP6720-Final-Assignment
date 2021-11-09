@@ -1,24 +1,62 @@
-import { IonButton, IonContent, IonHeader, IonInput, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonPage } from '@ionic/react';
 import { useEffect, useState } from 'react';
-import ExploreContainer from '../components/ExploreContainer';
 import './Home.css';
 
-
-const connection = new WebSocket("ws://localhost:5001");
+const username = prompt("Enter Username:");
+const password = prompt("Enter Password:");
+const connection = new WebSocket("ws://localhost:5000");
 
 const Home: React.FC = () => {
 
-  const [lastMessage, setMessage] = useState<string>("hello world");
-
+  const [query, setQuery] = useState<string>("");
+  const [lastMessage, setMessage] = useState<string>("");
+  const [token, setToken] = useState<string>("");
+  
   useEffect(() => {
-    connection.onmessage = (message) => setMessage(message.data);
+    connection.onmessage = (message) => {
+      try{
+        const parsedMessage = JSON.parse(message.data);
+        if(typeof(parsedMessage) != "object" || parsedMessage == null){
+          throw "invalid json";
+        }
+        setMessage(message.data);
+      }
+      catch(err){
+        setToken(message.data);
+      }
+    };
+    connection.onerror = () => connection.close();
     connection.onclose = () => {
-      // console.log("Disconnected. Retrying...")
-      // setTimeout(() => {
-      //   connection = new WebSocket("ws://localhost:5001");
-      // }, 5000);
+      setMessage("connection closed. Refresh page to reconnect");
     }
-  });
+
+    (async () => {
+      while(connection.readyState != 1){
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+      connection.send(JSON.stringify({
+        username,
+        password,
+      }));      
+    })();
+
+  }, []);
+
+  const execute = () => {
+    connection.send(JSON.stringify({
+      query,
+      token,
+      action: "EXECUTE",
+    }));
+  };
+
+  const commit = () => {
+    connection.send(JSON.stringify({
+      query,
+      token,
+      action: "COMMIT",
+    }));
+  };
 
   return (
     <IonPage className="container">
@@ -27,7 +65,7 @@ const Home: React.FC = () => {
             <span>SQL</span>
           </div>
           <div className="container--input-field-parent">
-            <input className="container--input-field"></input>
+            <input className="container--input-field" onChange={(e) => setQuery(e.target.value)}></input>
           </div>
       </header>
       <div className="container--result-container">
@@ -41,8 +79,8 @@ const Home: React.FC = () => {
           
         </div>
         <div className="container--button-container">
-          <button className="container--footer-button">EXECUTE</button>
-          <button className="container--footer-button">COMMIT</button>
+          <button className="container--footer-button" onClick={() => {execute();}}>EXECUTE</button>
+          <button className="container--footer-button" onClick={() => {commit();}}>COMMIT</button>
         </div>
       </footer>
     </IonPage>

@@ -1,3 +1,4 @@
+from typing import List
 from dotenv import load_dotenv
 from model.Request import Request
 from service import authentication_service
@@ -11,7 +12,13 @@ if os.path.exists("./.env"):
 else:
   load_dotenv("./dev.env")
 
+
+queryQueue: List = []
+
 class WebSocketController(WebSocket):
+
+    
+
     def handle(self):
         #TODO : first message from user should be an auth        
         request: Request = ast.literal_eval(self.data)
@@ -28,6 +35,13 @@ class WebSocketController(WebSocket):
         if sqlvalidator.parse(request.query) == False:
           self.send_message("Invalid sql query")
           return
+
+        splittedQuery = request.query.split(" ")
+
+        if str.upper(splittedQuery[0]) == "INSERT" or str.upper(splittedQuery[0]) == "UPDATE" or str.upper(splittedQuery[0]) == "DELETE":
+          queryQueue.append(request.query)
+      
+
 
         # TODO: Handle sql query
         self.send_message("")

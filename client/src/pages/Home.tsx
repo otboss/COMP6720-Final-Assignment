@@ -1,23 +1,88 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import ExploreContainer from '../components/ExploreContainer';
+import { IonPage } from '@ionic/react';
+import { useEffect, useState } from 'react';
 import './Home.css';
 
+const username = prompt("Enter Username:");
+const password = prompt("Enter Password:");
+const connection = new WebSocket("ws://localhost:5000");
+
 const Home: React.FC = () => {
+
+  const [query, setQuery] = useState<string>("");
+  const [lastMessage, setMessage] = useState<string>("");
+  const [token, setToken] = useState<string>("");
+  
+  useEffect(() => {
+    connection.onmessage = (message) => {
+      try{
+        const parsedMessage = JSON.parse(message.data);
+        if(typeof(parsedMessage) != "object" || parsedMessage == null){
+          throw "invalid json";
+        }
+        setMessage(message.data);
+      }
+      catch(err){
+        setToken(message.data);
+      }
+    };
+    connection.onerror = () => connection.close();
+    connection.onclose = () => {
+      setMessage("connection closed. Refresh page to reconnect");
+    }
+
+    (async () => {
+      while(connection.readyState != 1){
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+      connection.send(JSON.stringify({
+        username,
+        password,
+      }));      
+    })();
+
+  }, []);
+
+  const execute = () => {
+    connection.send(JSON.stringify({
+      query,
+      token,
+      action: "EXECUTE",
+    }));
+  };
+
+  const commit = () => {
+    connection.send(JSON.stringify({
+      query,
+      token,
+      action: "COMMIT",
+    }));
+  };
+
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Blank</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent fullscreen>
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Blank</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <ExploreContainer />
-      </IonContent>
+    <IonPage className="container">
+      <header className="container--header">
+          <div className="container--row-label">
+            <span>SQL</span>
+          </div>
+          <div className="container--input-field-parent">
+            <input className="container--input-field" onChange={(e) => setQuery(e.target.value)}></input>
+          </div>
+      </header>
+      <div className="container--result-container">
+        <div className="container--row-label">
+          <span>RESULT</span>
+        </div>
+        <textarea readOnly className="container--output-container" value={lastMessage}></textarea>
+      </div>
+      <footer className="container--footer">
+        <div className="container--row-label">
+          
+        </div>
+        <div className="container--button-container">
+          <button className="container--footer-button" onClick={() => {execute();}}>EXECUTE</button>
+          <button className="container--footer-button" onClick={() => {commit();}}>COMMIT</button>
+        </div>
+      </footer>
     </IonPage>
   );
 };

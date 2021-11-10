@@ -1,7 +1,6 @@
 
-
 class Record:
-  
+
   def __init__(self, id: int, param1: str, param2: str):
     self.id = id
     self.param1 = param1

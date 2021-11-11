@@ -1,7 +1,7 @@
 from Record import  Record
 
 class Block:
-  records: list[list] = []
+  records = []
 
   def add_record(self, record: Record):
     if(len(self.records) >= 5):

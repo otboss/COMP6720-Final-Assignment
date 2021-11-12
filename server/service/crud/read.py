@@ -1,4 +1,5 @@
 from model.Record import Record
+import os
 
 def select_records(db_name:str, table_name: str, project_field_names:str , conditions: str) -> list[Record]:
     if os.path.exists(table_name):
@@ -22,3 +23,6 @@ def select_records(db_name:str, table_name: str, project_field_names:str , condi
         return return_table 
     else:
         raise Exception("Table Does not Exist")
+
+def show_databases(working_directory: str) -> list[str]: 
+  return os.listdir(working_directory)

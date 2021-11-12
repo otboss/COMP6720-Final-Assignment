@@ -1,5 +1,6 @@
 import { IonPage } from '@ionic/react';
 import { useEffect, useState } from 'react';
+import { QueryActions } from '../model/QueryActions';
 import './Home.css';
 
 const username = prompt("Enter Username:");
@@ -11,6 +12,7 @@ const Home: React.FC = () => {
   const [query, setQuery] = useState<string>("");
   const [lastMessage, setMessage] = useState<string>("");
   const [token, setToken] = useState<string>("");
+  const [database, setDatabase] = useState<string | null>(null);
   
   useEffect(() => {
     connection.onmessage = (message) => {
@@ -41,20 +43,23 @@ const Home: React.FC = () => {
     })();
 
   }, []);
-
-  const execute = () => {
+  
+  const runQuery = (query: string, token: string, action: QueryActions) => {
+    const splittedQuery = query.split(" ");
+    if(splittedQuery[0].toUpperCase() != "USE" && database == null){
+      setMessage("ERROR 1046 (3D000): No database selected");
+      return;
+    }
+    if(splittedQuery[0].toUpperCase() == "USE"){
+      setDatabase(splittedQuery[1].replaceAll(";", ""));
+      setMessage("Database changed");
+      return;
+    }
     connection.send(JSON.stringify({
       query,
       token,
-      action: "EXECUTE",
-    }));
-  };
-
-  const commit = () => {
-    connection.send(JSON.stringify({
-      query,
-      token,
-      action: "COMMIT",
+      database,
+      action: action,
     }));
   };
 
@@ -79,8 +84,8 @@ const Home: React.FC = () => {
           
         </div>
         <div className="container--button-container">
-          <button className="container--footer-button" onClick={() => {execute();}}>EXECUTE</button>
-          <button className="container--footer-button" onClick={() => {commit();}}>COMMIT</button>
+          <button className="container--footer-button" onClick={() => {runQuery(query, token, QueryActions.EXECUTE);}}>EXECUTE</button>
+          <button className="container--footer-button" onClick={() => {runQuery(query, token, QueryActions.COMMIT);}}>COMMIT</button>
         </div>
       </footer>
     </IonPage>

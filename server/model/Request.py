@@ -5,6 +5,7 @@ class Request:
     password: str
     token: str
     query: str
+    database: str
     action: str
 
 

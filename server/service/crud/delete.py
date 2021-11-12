@@ -1,8 +1,15 @@
+import shutil
+import os
 
+def drop_database(working_directory: str, database: str):
+  if(working_directory[-1] != "/"):
+    working_directory = working_directory + "/"
+  shutil.rmtree(working_directory + database)
 
-def drop_table(table_name: str):
-  pass
-
+def drop_table(working_directory: str, database: str, table_name: str):
+  if(working_directory[-1] != "/"):
+    working_directory = working_directory + "/"
+  os.remove(working_directory + database + "/" + table_name + ".bin")
 
 def delete_records(condition):
   '''use table_name to locate the table file in the database folder then get all records and delete records 

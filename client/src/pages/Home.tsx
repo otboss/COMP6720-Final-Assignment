@@ -51,7 +51,7 @@ const Home: React.FC = () => {
       return;
     }
     if(splittedQuery[0].toUpperCase() == "USE"){
-      setDatabase(splittedQuery[1]);
+      setDatabase(splittedQuery[1].replaceAll(";", ""));
       setMessage("Database changed");
       return;
     }

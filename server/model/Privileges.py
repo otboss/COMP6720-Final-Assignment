@@ -6,4 +6,3 @@ class Privileges(Enum):
     INSERT = 3,
     DELETE = 4,
     CREATE = 5,
-

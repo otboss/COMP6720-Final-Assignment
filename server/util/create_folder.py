@@ -1,8 +1,7 @@
 import os 
 
-
-
 global workingDir
+baseLocation = 'server/'
 
 def createWorkingDir(workingDir) :
     isFile = os.path.isdir(workingDir)
@@ -10,8 +9,12 @@ def createWorkingDir(workingDir) :
         print('Path not found!!!')
         question = input('Create Path [yes or no] : ')    
         if question.lower() == 'yes' or question.lower() == 'y':
-            os.mkdir(workingDir)
+            os.mkdir(baseLocation+workingDir)
+            file = open("workingDirectory.txt", "w")
+            file.write(workingDir)
+            file.close()
             print('Path Successfully Created ', workingDir)
+
         else:
             print('Exiting Program.........')
             exit()

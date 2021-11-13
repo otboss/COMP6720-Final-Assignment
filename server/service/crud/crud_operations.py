@@ -9,22 +9,28 @@ import util.binary_io as file_helper
 #     return return_table
 
 
-def select(dbName:str, tableName: str,projectFieldNames:str , conditions: str) -> list[Record]:
-    if os.path.exists(tableName):
+def select(dbName:str, tableName: str, projectFieldNames:str, conditions: str) -> list[Record]:
+    if os.path.exists(dbName+'/'+ tableName):
         #get file contents
         contents = file_helper.read_from_binary_file(tableName)
         contents_split = contents.split()
         field_names = contents.split()[0].split(' ') #get field names
+        field_names_index = {}
+
+        #create dict with index values for field names
+        f_counter = 0
+        for f in field_names:
+            field_names_index[f] = f_counter
+            f_counter =+1
+
         
+
 
         #get field names to be projected
         projections = projectFieldNames.split(',')
-        projections_index = {}
+        
 
-        p_counter = 0
-        for p in projections:
-            projections_index.ke
-            p_counter = p_counter +1
+      
 
 
         return_table = {record for record in contents_split if all(cond(record) for cond in conditions)}

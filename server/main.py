@@ -1,7 +1,7 @@
 from typing import List
 from dotenv import load_dotenv
 from model.Request import Request
-from server.model.Privileges import Privileges
+from model.Privileges import Privileges
 from simple_websocket_server import WebSocketServer, WebSocket
 import asyncio
 import service.database_service
@@ -47,7 +47,7 @@ class WebSocketController(WebSocket):
             self.send_message(request.token)
             return
         except:
-          self.send_message("Unauthorized access. Are you logged in?")
+          self.send_message('{"error": "Unauthorized access. Are you logged in?"}')
           return
 
         if sqlvalidator.parse(request.query) == False:
@@ -58,7 +58,7 @@ class WebSocketController(WebSocket):
 
         if str.upper(splittedQuery[0]) == Privileges.INSERT.name or str.upper(splittedQuery[0]) == Privileges.UPDATE.name or str.upper(splittedQuery[0]) == Privileges.DELETE.name:
           lockingQueries.append(request.query)
-          self.send_message("Query appended to execution queue")
+          self.send_message('{"message": "Query appended to execution queue"}')
           return
 
         # TODO: Handle non locking sql query

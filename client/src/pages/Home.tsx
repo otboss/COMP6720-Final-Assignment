@@ -1,8 +1,8 @@
 import { IonPage } from '@ionic/react';
 import { useEffect, useState } from 'react';
 import { Queries } from '../model/Queries';
-import './Home.css';
 import { QueryActions } from '../model/QueryActions';
+import './Home.css';
 
 const username = prompt("Enter Username:");
 const password = prompt("Enter Password:");
@@ -28,7 +28,6 @@ const Home: React.FC = () => {
       catch(err){
         if(token == ""){
           setToken(message.data);
-          return;
         }
       }
     };

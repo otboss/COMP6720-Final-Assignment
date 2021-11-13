@@ -1,4 +1,4 @@
-import crud.read
+import service.crud.read
 
 def show_databases(working_directory: str) -> list[str]:
-  return crud.read.show_databases(working_directory)
+  return service.read.show_databases(working_directory)

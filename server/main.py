@@ -11,6 +11,7 @@ import sqlvalidator
 import ast
 from threading import Timer
 
+
 if os.path.exists("./.env"):
   load_dotenv("./.env")
 else:
@@ -22,12 +23,17 @@ lockingQueries: list[str] = []
 async def lockingQueriesChecker():
   global lockingQueries
   currentQuery: str = lockingQueries[0]
-  # TODO: execute query
+  try:
+    # TODO: execute query
+    pass
+  except:
+    pass
   lockingQueries = lockingQueries[1:]
   await asyncio.sleep(1)
   lockingQueriesChecker()
 
 lockingQueriesChecker()
+
 
 class WebSocketController(WebSocket):
 

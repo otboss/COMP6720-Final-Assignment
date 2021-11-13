@@ -1,7 +1,8 @@
 from typing import Set, List, Callable
-from model.Record import Record
+from model import Record, Constants
 import os
 import util.binary_io as file_helper
+
 
 #retrieves records from a table based on conditions given
 # def select(table: Set[Record], conditions: List[Callable]) -> Set[Record]:
@@ -9,7 +10,7 @@ import util.binary_io as file_helper
 #     return return_table
 
 
-def select(dbName:str, tableName: str, projectFieldNames:str, conditions: str) -> list[Record]:
+def select(dbName:str, tableName: str, projectFieldNames:str, conditions: str) -> list[Record.Record]:
     if os.path.exists(dbName+'/'+ tableName):
         #get file contents
         contents = file_helper.read_from_binary_file(tableName)
@@ -30,6 +31,10 @@ def select(dbName:str, tableName: str, projectFieldNames:str, conditions: str) -
         projections = projectFieldNames.split(',')
         
 
+        #break down conditions
+        conditions_list =  create_conds_lst(conditions)
+
+        #method to perform each condition
       
 
 
@@ -43,6 +48,35 @@ def select(dbName:str, tableName: str, projectFieldNames:str, conditions: str) -
     #use table_name to locate the table file in the database folder then add the records to the file
     #return true or false indicating the success of the insert
     #b=4
+
+
+
+
+def create_conds_lst(lst):
+    conditions_lst = []
+    conds_lst = []
+    conds_index = 0
+    sub_lst = []
+    operator = ''
+    length = len(lst) 
+    count = 1
+    for i in lst:
+        if i in Constants.logical_operators:
+            i_index = lst.index(i)
+            conds_lst = lst[conds_index: i_index]
+            #print(i)
+            operator = i
+            #print(conds_lst)
+            sub_lst = lst[i_index +1:]
+            #print(sub_lst)
+            conditions_lst = [conds_lst] + [operator] + create_conds_lst(sub_lst)
+            return conditions_lst 
+        count = count +1
+        if count == length:
+            conditions_lst =  [lst]
+    return conditions_lst
+
+
 
 #updates specified values in records
 def update( table_name: str,  conditions: List[Callable] ) -> bool:

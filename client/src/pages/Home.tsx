@@ -1,7 +1,6 @@
 import { IonPage } from '@ionic/react';
 import { useEffect, useState } from 'react';
 import { Queries } from '../model/Queries';
-import { validate } from 'mysql-query-validator'
 import './Home.css';
 import { QueryActions } from '../model/QueryActions';
 
@@ -15,9 +14,7 @@ const Home: React.FC = () => {
   const [lastMessage, setMessage] = useState<string>("");
   const [token, setToken] = useState<string>("");
   const [database, setDatabase] = useState<string | null>(null);
-
   const [lockingQueries, setLockingQueries] = useState<Array<string>>([]);
-  const [databaseMap, setDatabaseMap] = useState<any>({});
   
   useEffect(() => {
     connection.onmessage = (message) => {
@@ -29,8 +26,10 @@ const Home: React.FC = () => {
         setMessage(message.data);
       }
       catch(err){
-        // TODO: Correct behaviour here
-        // setToken(message.data);
+        if(token == ""){
+          setToken(message.data);
+          return;
+        }
       }
     };
     connection.onerror = () => connection.close();
@@ -48,7 +47,7 @@ const Home: React.FC = () => {
       }));      
     })();
 
-  }, []);
+  }, [token]);
   
   const runQuery = (action: QueryActions) => {
     const splittedQuery = query.split(" ");
@@ -56,6 +55,7 @@ const Home: React.FC = () => {
       splittedQuery[0].toUpperCase() == Queries.INSERT ||
       splittedQuery[0].toUpperCase() == Queries.UPDATE ||
       splittedQuery[0].toUpperCase() == Queries.DELETE;
+
     if(action == QueryActions.COMMIT){
       if(lockingQueries.length == 0){
         if(isLockingQuery){
@@ -64,10 +64,12 @@ const Home: React.FC = () => {
             token,
             database,
           }));
-          setMessage(`Changes commited successful`);
+          setMessage(`Changes commited successfully`);
+          setQuery("");
           return;
         }
         setMessage("No changes to commit");
+        setQuery("");
         return;
       }
 
@@ -77,74 +79,22 @@ const Home: React.FC = () => {
         token,
         database,
       }));
-      setDatabaseMap({});
       setLockingQueries([]);
       setMessage(`Changes commited successful`);
-      return;
-    }
-
-    try{
-      validate(query)
-    }
-    catch(err){
-      setMessage("Check query syntax and try again");
+      setQuery("");
       return;
     }
     
     if(splittedQuery[0].toUpperCase() != "USE" && database == null){
       setMessage("ERROR 1046 (3D000): No database selected");
+      setQuery("");
       return;
     }
     if(splittedQuery[0].toUpperCase() == "USE"){
       setDatabase(splittedQuery[1].replaceAll(";", ""));
       setMessage("Database changed");
+      setQuery("");
       return;
-    }
-
-    let tableName: string = ""
-    let records: Array<Record<string, string>> = [];
-    
-    switch (splittedQuery[0].toUpperCase()) {
-      case Queries.INSERT:
-        tableName = splittedQuery[2];
-        // TODO: Parse query for records
-        const columnsStartDelimiter: number = query.indexOf("(");
-        const columnsEndDelimiter: number = query.indexOf(")");
-
-        // RESULT: ["fname", "lname"]
-        const columns: Array<string> = query
-          .substring(columnsStartDelimiter + 1, columnsEndDelimiter)
-          .replaceAll("', ", "',")
-          .split(",");
-
-
-        const valuesStartDelimiter: number = query.indexOf("(", columnsStartDelimiter + 1);
-        const valuesEndDelimiter: number = query.lastIndexOf(")", columnsEndDelimiter + 1);
-
-        // RESULT: [["john", "brown"],["john", "brown"],["john", "brown"]]
-        records = query
-          .substring(valuesStartDelimiter + 1, valuesEndDelimiter)
-          .replaceAll("', ", "',")
-          .replaceAll("), ", "),")
-          .split(",(")
-          .map(param => {
-            const val: Array<any> = eval(`[${param.replaceAll("(", "").replaceAll(")", "")}]`);
-            const result: Record<string, any> = {};
-            for(let x = 0; x < val.length; x++){
-              result[columns[x]] = val[x]; 
-            }
-            return result;
-          });
-
-        break;
-      case Queries.UPDATE:
-        tableName = splittedQuery[1];
-        // TODO: Parse query for records
-        break;
-      case Queries.DELETE:
-        tableName = splittedQuery[2];
-        // TODO: Parse query for records
-        break;
     }
 
     if(isLockingQuery){
@@ -152,14 +102,8 @@ const Home: React.FC = () => {
         ...lockingQueries,
         query,
       ]);
-      setDatabaseMap({
-        ...databaseMap,
-        [tableName]: [
-          ...databaseMap[tableName],
-          ...records,
-        ],
-      });
-      setMessage("Query exection successful");
+      setMessage("Query stored, commit to apply changes");
+      setQuery("");
       return;
     }
 
@@ -177,7 +121,7 @@ const Home: React.FC = () => {
             <span>SQL</span>
           </div>
           <div className="container--input-field-parent">
-            <input className="container--input-field" onChange={(e) => setQuery(e.target.value)}></input>
+            <input className="container--input-field" value={query} onChange={(e) => setQuery(e.target.value)}></input>
           </div>
       </header>
       <div className="container--result-container">

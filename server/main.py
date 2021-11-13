@@ -10,17 +10,12 @@ import os
 import sqlvalidator
 import ast
 from threading import Timer
-import sys
+
 
 if os.path.exists("./.env"):
   load_dotenv("./.env")
 else:
   load_dotenv("./dev.env")
-
-
-working_dir: str = sys.argv[1]
-os.mkdir
-working_dir
 
 
 lockingQueries: list[str] = []
@@ -38,6 +33,7 @@ async def lockingQueriesChecker():
   lockingQueriesChecker()
 
 lockingQueriesChecker()
+
 
 class WebSocketController(WebSocket):
 

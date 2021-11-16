@@ -3,7 +3,7 @@ import os
 global workingDir
 baseLocation = 'server/'
 
-def createWorkingDir(workingDir) :
+def createWorkingDir(workingDir):
     isFile = os.path.isdir(workingDir)
     if isFile is False:
         print('Path not found!!!')
@@ -19,7 +19,7 @@ def createWorkingDir(workingDir) :
             print('Exiting Program.........')
             exit()
 
-def createsubFolder(folderName) :
+def createsubFolder(folderName):
     if folderName:
         subPath = workingDir + "\\" + folderName
         os.mkdir(subPath)

@@ -57,10 +57,14 @@
   justify-content: space-evenly;
 }
 
-.container--footer-button{
+.container--footer-button, .container--footer-button-disabled{
   background-color: #3faf46;
   color: black;
   padding: 10px 30px;
   border-radius: 5px;
   border: 1px solid black;
+}
+
+.container--footer-button-disabled{
+  opacity: 0.6;
 }

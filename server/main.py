@@ -13,7 +13,7 @@ import ast
 
 try:
   if os.path.exists(load_working_directory()) == False:
-    raise Exception("working directory not found")
+    raise Exception("Working directory not found")
 except:
   create_working_directory()
 

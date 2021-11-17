@@ -32,7 +32,7 @@ def select(dbName:str, tableName: str, projectFieldNames:str, conditions: str) -
         
 
         #break down conditions
-        conditions_list =  create_conds_lst(conditions)
+        conditions_list =  create_conds_lst(conditions.split())
 
         #method to perform each condition
       

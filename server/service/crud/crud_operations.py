@@ -1,7 +1,9 @@
 from typing import Set, List, Callable
-from model import Record, Constants
+from model import Record
+import crud_helpers as helper
 import os
 import util.binary_io as file_helper
+
 
 
 #retrieves records from a table based on conditions given
@@ -22,24 +24,38 @@ def select(dbName:str, tableName: str, projectFieldNames:str, conditions: str) -
         f_counter = 0
         for f in field_names:
             field_names_index[f] = f_counter
-            f_counter =+1
+            f_counter = f_counter +1
 
-        
-
+     
 
         #get field names to be projected
         projections = projectFieldNames.split(',')
         
 
         #break down conditions
-        conditions_list =  create_conds_lst(conditions.split())
+        conditions_list =  helper.create_conds_lst(conditions.split())
 
-        #method to perform each condition
-      
+        #method to evaluate each record
+        select_lst = [projections]
+        
+        for record in contents_split[1:]:
+            projected_record = []
+            result = helper.evaluate_conditions(conditions_list,record, field_names_index)
+            if result:
+                for p in projections:
+                    projected_record = projected_record + [record[field_names_index[p]]] 
+                select_lst = select_lst + [projected_record]
+        
+        #return select_lst
 
 
-        return_table = {record for record in contents_split if all(cond(record) for cond in conditions)}
-        return return_table 
+
+        
+
+
+
+        # return_table = {record for record in contents_split if all(cond(record) for cond in conditions)}
+        # return return_table 
     else:
         raise Exception("Table Does not Exist")  
 
@@ -49,32 +65,6 @@ def select(dbName:str, tableName: str, projectFieldNames:str, conditions: str) -
     #return true or false indicating the success of the insert
     #b=4
 
-
-
-
-def create_conds_lst(lst):
-    conditions_lst = []
-    conds_lst = []
-    conds_index = 0
-    sub_lst = []
-    operator = ''
-    length = len(lst) 
-    count = 1
-    for i in lst:
-        if i in Constants.logical_operators:
-            i_index = lst.index(i)
-            conds_lst = lst[conds_index: i_index]
-            #print(i)
-            operator = i
-            #print(conds_lst)
-            sub_lst = lst[i_index +1:]
-            #print(sub_lst)
-            conditions_lst = [conds_lst] + [operator] + create_conds_lst(sub_lst)
-            return conditions_lst 
-        count = count +1
-        if count == length:
-            conditions_lst =  [lst]
-    return conditions_lst
 
 
 

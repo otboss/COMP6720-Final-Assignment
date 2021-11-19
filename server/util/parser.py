@@ -1,3 +1,5 @@
+from model import ParsedQuery
+
 def parser(sqlStatement:str):
     crud = sqlStatement.lower().split()
     crud_name = crud[0]

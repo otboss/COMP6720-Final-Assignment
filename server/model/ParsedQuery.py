@@ -1,4 +1,4 @@
-from server.model.Privileges import Privileges
+from model.Privileges import Privileges
 
 
 class ParsedQuery:
@@ -10,46 +10,52 @@ class ParsedQuery:
   filters: list[str] = []
 
   @staticmethod
-  def select(self, table_name: str, selectors: list[str], filters: list[str]):
-    self.operation = Privileges.SELECT
-    self.table_name = table_name
-    self.selectors = selectors
-    self.filters = filters
-    return self
+  def select(table_name: str, selectors: list[str], filters: list[str]):
+    query = ParsedQuery
+    query.operation = Privileges.SELECT
+    query.table_name = table_name
+    query.selectors = selectors
+    query.filters = filters
+    return query
 
   @staticmethod
-  def update(self, table_name: str, selectors: list[str], filters: list[str]):
-    self.operation = Privileges.UPDATE
-    self.table_name = table_name
-    self.selectors = selectors
-    self.filters = filters
-    return self
+  def update(table_name: str, selectors: list[str], filters: list[str]):
+    query = ParsedQuery
+    query.operation = Privileges.UPDATE
+    query.table_name = table_name
+    query.selectors = selectors
+    query.filters = filters
+    return query
 
   @staticmethod
-  def insert(self, table_name: str, selectors: list[str], filters: list[str]):
-    self.operation = Privileges.INSERT
-    self.table_name = table_name
-    self.selectors = selectors
-    self.filters = filters
-    return self
+  def insert(table_name: str, selectors: list[str], filters: list[str]):
+    query = ParsedQuery
+    query.operation = Privileges.INSERT
+    query.table_name = table_name
+    query.selectors = selectors
+    query.filters = filters
+    return query
     
   @staticmethod
-  def delete(self, table_name: str, filters: list[str]):
-    self.operation = Privileges.DELETE
-    self.table_name = table_name
-    self.filters = filters
-    return self
+  def delete(table_name: str, filters: list[str]):
+    query = ParsedQuery
+    query.operation = Privileges.DELETE
+    query.table_name = table_name
+    query.filters = filters
+    return query
   
   @staticmethod
-  def create(self, database: str, table_name: str):
-    self.operation = Privileges.CREATE
-    self.database = database
-    self.table_name = table_name
-    return self
+  def create(database: str, table_name: str):
+    query = ParsedQuery
+    query.operation = Privileges.CREATE
+    query.database = database
+    query.table_name = table_name
+    return query
 
   @staticmethod
-  def drop(self, database: str, table_name: str = None):
-    self.operation = Privileges.DROP
-    self.database = database
-    self.table_name = table_name
-    return self
+  def drop(database: str, table_name: str = None):
+    query = ParsedQuery
+    query.operation = Privileges.DROP
+    query.database = database
+    query.table_name = table_name
+    return query

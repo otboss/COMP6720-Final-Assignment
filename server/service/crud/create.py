@@ -1,7 +1,15 @@
 from model.File import File
 from util.binary_io import write_to_binary_file, append_to_binary_file
+import util.working_directory
 import model.Block
 import os
+
+
+def create_database(database_name: str):
+    try:
+        util.working_directory.create_sub_folder(database_name)
+    except:
+        pass
 
 def create_table(table_name: str, field_names):#field_names is a list
     if os.path.exists(table_name):

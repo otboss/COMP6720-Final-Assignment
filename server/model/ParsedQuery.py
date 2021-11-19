@@ -10,7 +10,7 @@ class ParsedQuery:
   filters: list[str] = []
 
   @staticmethod
-  def select(table_name: str, selectors: list[str], filters: list[str]):
+  def select(table_name: str, selectors: list[str], filters: list[str] = []):
     query = ParsedQuery
     query.operation = Privileges.SELECT
     query.table_name = table_name
@@ -19,7 +19,7 @@ class ParsedQuery:
     return query
 
   @staticmethod
-  def update(table_name: str, selectors: list[str], filters: list[str]):
+  def update(table_name: str, selectors: list[str], filters: list[str] = []):
     query = ParsedQuery
     query.operation = Privileges.UPDATE
     query.table_name = table_name
@@ -28,7 +28,7 @@ class ParsedQuery:
     return query
 
   @staticmethod
-  def insert(table_name: str, selectors: list[str], filters: list[str]):
+  def insert(table_name: str, selectors: list[str], filters: list[str] = []):
     query = ParsedQuery
     query.operation = Privileges.INSERT
     query.table_name = table_name
@@ -37,7 +37,7 @@ class ParsedQuery:
     return query
     
   @staticmethod
-  def delete(table_name: str, filters: list[str]):
+  def delete(table_name: str, filters: list[str] = []):
     query = ParsedQuery
     query.operation = Privileges.DELETE
     query.table_name = table_name
@@ -45,7 +45,7 @@ class ParsedQuery:
     return query
   
   @staticmethod
-  def create(database: str, table_name: str):
+  def create(database: str, table_name: str = None):
     query = ParsedQuery
     query.operation = Privileges.CREATE
     query.database = database

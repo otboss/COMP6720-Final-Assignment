@@ -5,6 +5,7 @@ class ParsedQuery:
 
   database: str = None
   table_name: str = None
+  index: str = None
   operation: Privileges = None
   selectors: list[str] = []
   filters: list[str] = []
@@ -45,12 +46,27 @@ class ParsedQuery:
     return query
   
   @staticmethod
-  def create(database: str, table_name: str = None):
+  def create_database(database: str):
+    query = ParsedQuery
+    query.database = database
+    return query
+
+  @staticmethod
+  def create_table(table_name: str, selectors: list[str] = ["id"]):
     query = ParsedQuery
     query.operation = Privileges.CREATE
-    query.database = database
     query.table_name = table_name
-    return query
+    query.selectors = selectors
+    return query  
+
+  @staticmethod
+  def create_index(index: str, table_name: str, selectors: list[str] = []):
+    query = ParsedQuery
+    query.operation = Privileges.CREATE
+    query.index = index
+    query.table_name = table_name
+    query.selectors = selectors
+    return query    
 
   @staticmethod
   def drop(database: str, table_name: str = None):

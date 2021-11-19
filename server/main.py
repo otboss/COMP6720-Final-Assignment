@@ -3,13 +3,19 @@ from dotenv import load_dotenv
 from model.Request import Request
 from model.Privileges import Privileges
 from simple_websocket_server import WebSocketServer, WebSocket
+from util.working_directory import load_working_directory, create_working_directory
 import asyncio
 import service.database_service
 import service.authentication_service
 import os
 import sqlvalidator
 import ast
-from threading import Timer
+
+try:
+  if os.path.exists(load_working_directory()) == False:
+    raise Exception("Working directory not found")
+except:
+  create_working_directory()
 
 
 if os.path.exists("./.env"):

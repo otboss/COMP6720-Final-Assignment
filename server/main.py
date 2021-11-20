@@ -24,7 +24,18 @@ async def lockingQueriesChecker():
   global lockingQueries
   currentQuery: str = lockingQueries[0]
   try:
-    # TODO: execute query
+    if str.upper(currentQuery[0]) == lockingQueries.INSERT.name or str.upper(currentQuery[0]) == lockingQueries.UPDATE.name or str.upper(currentQuery[0]) == lockingQueries.DELETE.name or str.upper(currentQuery[0]) == lockingQueries.SELECT.name: 
+      if str.upper(currentQuery[0]) == lockingQueries.INSERT.name:
+        create_table(table_name: str, field_names)
+      elif  str.upper(currentQuery[0]) == lockingQueries.UPDATE.name:
+         update_records()
+      elif str.upper(currentQuery[0]) == lockingQueries.DELETE.name:
+        delete_records(condition: str)
+      elif  str.upper(currentQuery[0]) == lockingQueries.SELECT.name:
+        select(dbName:str, tableName: str,projectFieldNames:str , conditions: str) -> list[Record]
+    else:
+      
+
     pass
   except:
     pass

@@ -5,8 +5,7 @@ def parser(sqlStatement:str):
     crud_name = crud[0]
     
     try:
-    
-
+        
         if (crud_name == "delete"): #"DELETE FROM Employee WHERE eid=1"
             table_name= crud[crud.index("from")+1]
             
@@ -14,10 +13,10 @@ def parser(sqlStatement:str):
                 i = crud.index("where")
                 where_condition = crud[i+1:]
                 where_condition =' '.join([str(elem) for elem in where_condition])
-                return ParsedQuery.ParsedQuery.delete(table_name,where_condition)
+                return ParsedQuery.delete(table_name,where_condition)
             
             else:
-                return ParsedQuery.ParsedQuery.delete(table_name)
+                return ParsedQuery.delete(table_name)
 
         elif(crud_name=="select"):  # "Select name from student where n > b"
             
@@ -31,10 +30,10 @@ def parser(sqlStatement:str):
                 i = crud.index("where")
                 where_condition = crud[i+1:]
                 where_condition = ' '.join([str(elem) for elem in where_condition])
-                return ParsedQuery.ParsedQuery.select(table_name, projections, where_condition)
+                return ParsedQuery.select(table_name, projections, where_condition)
             
             else:
-                return ParsedQuery.ParsedQuery.select(table_name, projections) 
+                return ParsedQuery.select(table_name, projections) 
                 
         elif(crud_name == "insert"):  # "INSERT INTO Employee VALUES ( 1, Pam, Jones )"
             table_name = crud[2]
@@ -42,7 +41,7 @@ def parser(sqlStatement:str):
             c = crud.index(")")
             values = crud[o+1:c]
             values =' '.join([str(elem) for elem in values])
-            return ParsedQuery.ParsedQuery.insert(table_name, values)
+            return ParsedQuery.insert(table_name, values)
 
         elif(crud_name == "update"): #" UPDATE Employee SET fname = Pam WHERE eid=2"
             table_name = crud[1]
@@ -52,7 +51,7 @@ def parser(sqlStatement:str):
             set_conditions =' '.join([str(elem) for elem in set_conditions])
             where_condition = crud[windex+1:]
             where_condition = ' '.join([str(elem) for elem in where_condition])
-            return ParsedQuery.ParsedQuery.update(table_name, set_conditions, where_condition) 
+            return ParsedQuery.update(table_name, set_conditions, where_condition) 
 
         elif (crud_name == "create"): 
             
@@ -62,7 +61,7 @@ def parser(sqlStatement:str):
                 c=table_col.index(")")
                 table_name = table_col[0:o]
                 col = table_col[o+1:c]
-                return ParsedQuery.ParsedQuery.create_index(table_name, col) 
+                return ParsedQuery.create_index(table_name, col) 
             
             elif(crud[1] == "table"): #"Create Table STUDENt ( ID INT, NAME STRING, SCHOOL STRING )"
                 table_name = crud[2]
@@ -70,20 +69,20 @@ def parser(sqlStatement:str):
                 col2 = crud[6]
                 col3 = crud[8]
                 columns = [col1, col2, col3]
-                return ParsedQuery.ParsedQuery.create_table(table_name, columns) 
+                return ParsedQuery.create_table(table_name, columns) 
             
             else:
                 db_name= crud[2] #" create database student"
-                return ParsedQuery.ParsedQuery.create_database(db_name) 
+                return ParsedQuery.create_database(db_name) 
 
         elif (crud_name == "drop"):
             if(crud[1]== "table"):
                 table_name = crud[2]
-                return ParsedQuery.ParsedQuery.drop(table_name)
+                return ParsedQuery.drop(table_name)
 
             elif(crud[1]== "database"):
                 db_name = crud[2]
-                return ParsedQuery.ParsedQuery.drop(db_name)
+                return ParsedQuery.drop(db_name)
        
     except:
          raise Exception("Please input query in a form that matches the definition of the Database")

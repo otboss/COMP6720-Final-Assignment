@@ -6,9 +6,3 @@ class Request:
     token: str
     query: str
     database: str
-    action: str
-
-
-class Actions(Enum):
-    EXECUTE = 1,
-    COMMIT = 2,

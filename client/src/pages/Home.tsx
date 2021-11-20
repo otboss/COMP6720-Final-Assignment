@@ -1,5 +1,6 @@
 import { IonPage } from '@ionic/react';
 import { useEffect, useState } from 'react';
+import { Queries } from '../model/Queries';
 import { QueryActions } from '../model/QueryActions';
 import './Home.css';
 
@@ -13,6 +14,9 @@ const Home: React.FC = () => {
   const [lastMessage, setMessage] = useState<string>("");
   const [token, setToken] = useState<string>("");
   const [database, setDatabase] = useState<string | null>(null);
+  const [queryCompleted, setQueryCompleted] = useState<boolean>(true);
+  const [lastLockingQueryExecuted, setLastLockingQueryExecuted] = useState<boolean>(true);
+  const [lockingQueries, setLockingQueries] = useState<Array<string>>([]);
   
   useEffect(() => {
     connection.onmessage = (message) => {
@@ -21,10 +25,13 @@ const Home: React.FC = () => {
         if(typeof(parsedMessage) != "object" || parsedMessage == null){
           throw "invalid json";
         }
+        setLastLockingQueryExecuted(true);
         setMessage(message.data);
       }
       catch(err){
-        setToken(message.data);
+        if(token == ""){
+          setToken(message.data);
+        }
       }
     };
     connection.onerror = () => connection.close();
@@ -42,24 +49,83 @@ const Home: React.FC = () => {
       }));      
     })();
 
-  }, []);
+  }, [token]);
   
-  const runQuery = (query: string, token: string, action: QueryActions) => {
+  const runQuery = async (action: QueryActions) => {
+    setQueryCompleted(false);
+    await new Promise((resolve) => setTimeout(resolve, 500));
     const splittedQuery = query.split(" ");
+    const isLockingQuery: boolean =
+      splittedQuery[0].toUpperCase() == Queries.INSERT ||
+      splittedQuery[0].toUpperCase() == Queries.UPDATE ||
+      splittedQuery[0].toUpperCase() == Queries.DELETE;
+
+    if(action == QueryActions.COMMIT){
+      if(lockingQueries.length == 0){
+        if(isLockingQuery){
+          connection.send(JSON.stringify({
+            query,
+            token,
+            database,
+          }));
+          setMessage(`Changes commited successfully`);
+          setQueryCompleted(true);
+          setQuery("");
+          return;
+        }
+        setMessage("No changes to commit");
+        setQueryCompleted(true);
+        setQuery("");
+        return;
+      }
+
+      const commitQuery = lockingQueries.join(";");
+      for(let x = 0; x < commitQuery.length; x++){
+        while(!lastLockingQueryExecuted){
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+        connection.send(JSON.stringify({
+          query: commitQuery[x],
+          token,
+          database,
+        }));
+        setLastLockingQueryExecuted(false);
+      }
+      setLockingQueries([]);
+      setQueryCompleted(true);
+      setQuery("");
+      return;
+    }
+    
     if(splittedQuery[0].toUpperCase() != "USE" && database == null){
       setMessage("ERROR 1046 (3D000): No database selected");
+      setQueryCompleted(true);
+      setQuery("");
       return;
     }
     if(splittedQuery[0].toUpperCase() == "USE"){
       setDatabase(splittedQuery[1].replaceAll(";", ""));
       setMessage("Database changed");
+      setQueryCompleted(true);
+      setQuery("");
       return;
     }
+
+    if(isLockingQuery){
+      setLockingQueries([
+        ...lockingQueries,
+        query,
+      ]);
+      setMessage("Query stored, commit to apply changes");
+      setQueryCompleted(true);
+      setQuery("");
+      return;
+    }
+
     connection.send(JSON.stringify({
       query,
       token,
       database,
-      action: action,
     }));
   };
 
@@ -70,7 +136,7 @@ const Home: React.FC = () => {
             <span>SQL</span>
           </div>
           <div className="container--input-field-parent">
-            <input className="container--input-field" onChange={(e) => setQuery(e.target.value)}></input>
+            <input className="container--input-field" value={query} disabled={!queryCompleted} onChange={(e) => setQuery(e.target.value)}></input>
           </div>
       </header>
       <div className="container--result-container">
@@ -84,8 +150,8 @@ const Home: React.FC = () => {
           
         </div>
         <div className="container--button-container">
-          <button className="container--footer-button" onClick={() => {runQuery(query, token, QueryActions.EXECUTE);}}>EXECUTE</button>
-          <button className="container--footer-button" onClick={() => {runQuery(query, token, QueryActions.COMMIT);}}>COMMIT</button>
+          <button className={queryCompleted ? "container--footer-button" : "container--footer-button-disabled"} disabled={!queryCompleted} onClick={() => {runQuery(QueryActions.EXECUTE);}}>EXECUTE</button>
+          <button className={queryCompleted ? "container--footer-button" : "container--footer-button-disabled"} disabled={!queryCompleted} onClick={() => {runQuery(QueryActions.COMMIT);}}>COMMIT</button>
         </div>
       </footer>
     </IonPage>

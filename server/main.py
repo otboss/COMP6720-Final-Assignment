@@ -18,12 +18,9 @@ import service.crud.read
 
 working_directory = load_working_directory()
 
-try:
-  if os.path.exists(working_directory) == False:
-    raise Exception("Working directory not found")
-except:
+if os.path.exists(working_directory) == False:
   create_working_directory()
-
+  
 
 if os.path.exists("./.env"):
   load_dotenv("./.env")
@@ -44,7 +41,7 @@ async def lockingQueriesChecker():
     elif str.upper(currentQuery[0]) == Privileges.UPDATE.name:
       service.crud.update.update_records(working_directory, parsed_query.database, parsed_query.table_name, parsed_query.selectors, parsed_query.filters)
     elif str.upper(currentQuery[0]) == Privileges.DELETE.name:
-     service.crud.delete.delete_records(working_directory, parsed_query.database, parsed_query.table_name, parsed_query.filters)
+      service.crud.delete.delete_records(working_directory, parsed_query.database, parsed_query.table_name, parsed_query.filters)
   except:
     pass
   lockingQueries = lockingQueries[1:]

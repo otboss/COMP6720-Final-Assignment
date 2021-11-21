@@ -9,7 +9,7 @@ def append_to_binary_file(file_name: str, text: str):
   file.write(text.encode())
   file.close()
 
-def read_from_binary_file(file_name: str):
+def read_from_binary_file(file_name: str) -> str:
   file = open("%s.bin"%(file_name), "rb")
   contents = file.read().decode('ascii')
   file.close()

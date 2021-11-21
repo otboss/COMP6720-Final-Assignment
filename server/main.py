@@ -1,18 +1,25 @@
-from typing import List
 from dotenv import load_dotenv
 from model.Request import Request
 from model.Privileges import Privileges
+from model.ParsedQuery import ParsedQuery
 from simple_websocket_server import WebSocketServer, WebSocket
 from util.working_directory import load_working_directory, create_working_directory
+from util import query_parser
 import asyncio
-import service.database_service
 import service.authentication_service
 import os
 import sqlvalidator
 import ast
+import service.crud.delete
+import service.crud.update
+import service.crud.create
+import service.crud.read
+
+
+working_directory = load_working_directory()
 
 try:
-  if os.path.exists(load_working_directory()) == False:
+  if os.path.exists(working_directory) == False:
     raise Exception("Working directory not found")
 except:
   create_working_directory()
@@ -26,12 +33,18 @@ else:
 
 lockingQueries: list[str] = []
 
+
 async def lockingQueriesChecker():
   global lockingQueries
   currentQuery: str = lockingQueries[0]
   try:
-    # TODO: execute query
-    pass
+    parsed_query = query_parser.parser(currentQuery)
+    if str.upper(currentQuery[0]) == Privileges.INSERT.name:
+      service.crud.insert.insert_record(working_directory, parsed_query.database, parsed_query.table_name, parsed_query.selectors, parsed_query.filters)
+    elif str.upper(currentQuery[0]) == Privileges.UPDATE.name:
+      service.crud.update.update_records(working_directory, parsed_query.database, parsed_query.table_name, parsed_query.selectors, parsed_query.filters)
+    elif str.upper(currentQuery[0]) == Privileges.DELETE.name:
+     service.crud.delete.delete_records(working_directory, parsed_query.database, parsed_query.table_name, parsed_query.filters)
   except:
     pass
   lockingQueries = lockingQueries[1:]
@@ -44,7 +57,7 @@ lockingQueriesChecker()
 class WebSocketController(WebSocket):
 
     def handle(self):
-        #TODO : first message from user should be an auth        
+        #TODO : first message from user should be an auth
         request: Request = ast.literal_eval(self.data)
 
         try:
@@ -60,19 +73,29 @@ class WebSocketController(WebSocket):
           self.send_message("Invalid sql query")
           return
 
-        splittedQuery = request.query.replace(";", "").split(" ")
+        query = request.query.replace(";", "")
+        splittedQuery = query.split(" ")
 
         if str.upper(splittedQuery[0]) == Privileges.INSERT.name or str.upper(splittedQuery[0]) == Privileges.UPDATE.name or str.upper(splittedQuery[0]) == Privileges.DELETE.name:
           lockingQueries.append(request.query)
           self.send_message('{"message": "Query appended to execution queue"}')
           return
 
-        # TODO: Handle non locking sql query
+        parsed_query: ParsedQuery = query_parser.parser(query)
+
         if splittedQuery[0] == Privileges.SHOW.name:
           if splittedQuery[1].upper() == "DATABASES":
-            # TODO: PROVIDE WORKING DIRECTORY TO SERVICE BELOW
-            service.databases_service.show_databases("TODO: PROVIDE WORKING DIRECTORY HERE")
-            
+            service.crud.read.show_databases(working_directory)
+        elif splittedQuery[0] == Privileges.SELECT.name:
+          service.crud.read.select_records(request.database, parsed_query.table_name, parsed_query.selectors, parsed_query.filters)
+        elif splittedQuery[0] == Privileges.CREATE.name:
+          if str.upper(splittedQuery[1]) == "DATABASE":
+            service.crud.create.create_database(splittedQuery[2])
+          if str.upper(splittedQuery[1]) == "TABLE":
+            service.crud.create.create_table(request.database, parsed_query.table_name, parsed_query.selectors)
+          if str.upper(splittedQuery[1]) == "INDEX":
+            service.crud.create.create_table(splittedQuery[2], parsed_query.table_name, parsed_query.selectors)
+
         self.send_message("")
 
     def connected(self):
@@ -80,6 +103,7 @@ class WebSocketController(WebSocket):
 
     def handle_close(self):
         print(self.address, 'closed')
+
 
 print("started websocket server on port: "+os.environ.get("PORT"))
 server = WebSocketServer('', os.environ.get("PORT"), WebSocketController)

@@ -15,8 +15,8 @@ def create_working_directory():
     file = open(db_path_file, "w")
     file.write(working_directory_path)
     file.close()
-        
-def load_working_directory():
+
+def load_working_directory() -> str:
     file = open(db_path_file, "r")
     working_dir_path = file.read()
     file.close()

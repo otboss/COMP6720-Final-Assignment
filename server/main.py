@@ -40,7 +40,7 @@ async def lockingQueriesChecker():
   try:
     parsed_query = query_parser.parser(currentQuery)
     if str.upper(currentQuery[0]) == Privileges.INSERT.name:
-      service.crud.insert.insert_record(working_directory, parsed_query.database, parsed_query.table_name, parsed_query.selectors, parsed_query.filters)
+      service.crud.update.insert_records(working_directory, parsed_query.database, parsed_query.table_name, parsed_query.selectors, parsed_query.filters)
     elif str.upper(currentQuery[0]) == Privileges.UPDATE.name:
       service.crud.update.update_records(working_directory, parsed_query.database, parsed_query.table_name, parsed_query.selectors, parsed_query.filters)
     elif str.upper(currentQuery[0]) == Privileges.DELETE.name:

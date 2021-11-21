@@ -57,17 +57,17 @@ lockingQueriesChecker()
 class WebSocketController(WebSocket):
 
     def handle(self):
-        #TODO : first message from user should be an auth
         request: Request = ast.literal_eval(self.data)
 
-        try:
-          request.token = service.authentication_service.authenticate_user(request)
-          if type(request.username) == str or type(request.password):
-            self.send_message(request.token)
-            return
-        except:
-          self.send_message('{"error": "Unauthorized access. Are you logged in?"}')
-          return
+        #TODO : first message from user should be an auth
+        # try:
+        #   request.token = service.authentication_service.authenticate_user(request)
+        #   if type(request.username) == str or type(request.password):
+        #     self.send_message(request.token)
+        #     return
+        # except:
+        #   self.send_message('{"error": "Unauthorized access. Are you logged in?"}')
+        #   return
 
         if sqlvalidator.parse(request.query) == False:
           self.send_message("Invalid sql query")

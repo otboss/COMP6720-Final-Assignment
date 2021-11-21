@@ -8,3 +8,11 @@ class Block:
       raise Exception("block full") 
 
     self.records.append(record.to_list())
+
+  @staticmethod
+  def from_dict(block_dict: dict):
+    block = Block()
+    for record in block_dict:
+      block.add_record(Record.from_dict(record))
+    return block
+    

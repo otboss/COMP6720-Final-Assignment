@@ -11,8 +11,10 @@ def create_database(database_name: str):
     except:
         pass
 
-def create_table(table_name: str, field_names):#field_names is a list
-    if os.path.exists(table_name):
+def create_table(database: str, table_name: str, field_names):#field_names is a list
+    working_dir = util.working_directory.load_working_directory()
+    table_path = "%s/%s/%s"%(working_dir, database, table_name)
+    if os.path.exists(table_path):
          raise Exception("Table already exists")
     else:
         newtable= File(table_name)

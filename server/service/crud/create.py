@@ -1,7 +1,7 @@
 from model.File import File
+from model.Block import Block
 from util.binary_io import write_to_binary_file, append_to_binary_file
 import util.working_directory
-import model.Block
 import os
 
 
@@ -22,7 +22,7 @@ def create_table(database: str, table_name: str, field_names):#field_names is a 
         listToStr = ' '.join([str(elem) for elem in newtable])
         write_to_binary_file(table_name,listToStr)
 
-def insert_records (table_name: str, block: model.Block):
+def insert_records (table_name: str, block: Block):
     if os.path.exists(table_name):
         for i in block:
             listToStr = ' '.join([str(elem) for elem in i])

@@ -1,5 +1,5 @@
-from os import stat
-from Block import Block
+from model.Block import Block
+
 #A file is basically a table, one is created whenever a table is created
 class File:
 
@@ -24,11 +24,8 @@ class File:
         # the file is created as a list of lists where the first list is the column headers
         self.data_items.append(block)
 
-    @staticmethod
-    def from_dict(file: dict):
-      file_parsed = File(file["table_name"], file["schema"])
-      
-      for block in file.data_items:
-        file_parsed.add_block(Block.from_dict(block))
-        
-      return file_parsed      
+def from_dict(file: dict) -> File:
+  file_parsed = File(file["table_name"], file["schema"])
+  for block in file.data_items:
+    file_parsed.add_block(Block.from_dict(block))
+  return file_parsed      

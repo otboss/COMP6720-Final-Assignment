@@ -24,8 +24,9 @@ class File:
         # the file is created as a list of lists where the first list is the column headers
         self.data_items.append(block)
 
-def from_dict(file: dict) -> File:
-  file_parsed = File(file["table_name"], file["schema"])
-  for block in file.data_items:
-    file_parsed.add_block(Block.from_dict(block))
-  return file_parsed      
+    @staticmethod
+    def from_dict(file: dict):
+      file_parsed = File(file["table_name"], file["schema"])
+      for block in file.data_items:
+        file_parsed.add_block(Block.from_dict(block))
+      return file_parsed      

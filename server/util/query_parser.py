@@ -1,4 +1,4 @@
-from model import ParsedQuery
+from model.ParsedQuery import ParsedQuery
 
 def parser(sql_statement:str) -> ParsedQuery:
     crud = sql_statement.lower().split()

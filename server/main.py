@@ -2,9 +2,12 @@ from dotenv import load_dotenv
 from model.Request import Request
 from model.Privileges import Privileges
 from model.ParsedQuery import ParsedQuery
+from model.Query import Query
+from util import binary_io
 from simple_websocket_server import WebSocketServer, WebSocket
 from util.working_directory import load_working_directory, create_working_directory
 from util import query_parser
+from math import trunc
 import asyncio
 import service.authentication_service
 import os
@@ -14,13 +17,16 @@ import service.crud.delete
 import service.crud.update
 import service.crud.create
 import service.crud.read
+import datetime
 
 
-working_directory = load_working_directory()
-
-if os.path.exists(working_directory) == False:
+working_directory = ""
+try:
+  working_directory = load_working_directory()
+except:
   create_working_directory()
-  
+  working_directory = load_working_directory()
+
 
 if os.path.exists("./.env"):
   load_dotenv("./.env")
@@ -28,20 +34,25 @@ else:
   load_dotenv("./dev.env")
 
 
-lockingQueries: list[str] = []
+lockingQueries: list[Query] = []
 
 
 async def lockingQueriesChecker():
   global lockingQueries
-  currentQuery: str = lockingQueries[0]
+  currentQuery: Query = lockingQueries[0]
   try:
-    parsed_query = query_parser.parser(currentQuery)
+    parsed_query = query_parser.parser(currentQuery.query)
+    working_dir = load_working_directory()
+    table_lock_file = "%s/%s/.%s-lock"%(working_dir, currentQuery.database, parsed_query.table_name)
+    timestamp: int = trunc(datetime.datetime.now().timestamp()*1000)
+    binary_io.write_to_binary_file(table_lock_file, str(timestamp))
     if str.upper(currentQuery[0]) == Privileges.INSERT.name:
       service.crud.update.insert_records(working_directory, parsed_query.database, parsed_query.table_name, parsed_query.selectors, parsed_query.filters)
     elif str.upper(currentQuery[0]) == Privileges.UPDATE.name:
       service.crud.update.update_records(working_directory, parsed_query.database, parsed_query.table_name, parsed_query.selectors, parsed_query.filters)
     elif str.upper(currentQuery[0]) == Privileges.DELETE.name:
       service.crud.delete.delete_records(working_directory, parsed_query.database, parsed_query.table_name, parsed_query.filters)
+    binary_io.delete_binary_file(table_lock_file)
   except:
     pass
   lockingQueries = lockingQueries[1:]
@@ -74,7 +85,7 @@ class WebSocketController(WebSocket):
         splittedQuery = query.split(" ")
 
         if str.upper(splittedQuery[0]) == Privileges.INSERT.name or str.upper(splittedQuery[0]) == Privileges.UPDATE.name or str.upper(splittedQuery[0]) == Privileges.DELETE.name:
-          lockingQueries.append(request.query)
+          lockingQueries.append(Query(request.database, request.query))
           self.send_message('{"message": "Query appended to execution queue"}')
           return
 

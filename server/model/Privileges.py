@@ -7,3 +7,4 @@ class Privileges(Enum):
     DELETE = 4,
     CREATE = 5,
     SHOW = 6,
+    DROP = 7,

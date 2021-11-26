@@ -6,9 +6,6 @@ class Record:
     self.param1 = param1
     self.param2 = param2
 
-  def to_list(self):
-    return [
-      self.id,
-      self.param1,
-      self.param2,      
-    ]
+  @staticmethod
+  def from_dict(record: dict):
+    return Record(record["id"], record["param1"], record["param2"])

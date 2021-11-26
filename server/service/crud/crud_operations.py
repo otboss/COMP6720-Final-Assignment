@@ -26,8 +26,6 @@ def select(dbName:str, tableName: str, projectFieldNames:str, conditions: str) -
             field_names_index[f] = f_counter
             f_counter = f_counter +1
 
-     
-
         #get field names to be projected
         projections = projectFieldNames.split(',')
         
@@ -48,16 +46,13 @@ def select(dbName:str, tableName: str, projectFieldNames:str, conditions: str) -
         
         #return select_lst
 
-
-
-        
-
-
-
         # return_table = {record for record in contents_split if all(cond(record) for cond in conditions)}
         # return return_table 
     else:
         raise Exception("Table Does not Exist")  
+
+
+
 
 #adds records to a table
 #def insert(records: Set[Record], table_name: str) -> bool:

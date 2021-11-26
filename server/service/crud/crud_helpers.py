@@ -1,5 +1,6 @@
 from util import Constants
 from operator import lt, le, eq, ne, ge, gt, and_, or_
+import util.Constants 
 
 
 
@@ -12,7 +13,7 @@ def create_conds_lst(lst):
     length = len(lst) 
     count = 1
     for i in lst:
-        if i in Constants.logical_operators:
+        if i in util.Constants.logical_operators:
             i_index = lst.index(i)
             conds_lst = lst[conds_index: i_index]
             #print(i)
@@ -28,16 +29,18 @@ def create_conds_lst(lst):
     return conditions_lst
 
 
-def evaluate_conditions(lst, record, field_indexes):
+def evaluate_conditions(lst, record):
     result = False
     
     if type(lst[0]) == list and len(lst) == 1 : 
         lst = lst[0]
         
     if type(lst[0]) != list :
-        operation = Constants.mathematical_operators[lst[1]]
-        record_value = record[field_indexes[lst[0]]]
+        operation = util.Constants.mathematical_operators[lst[1]]
+        record_value = record[lst[0]]
+        #print(record_value)
         cond_value = lst[2]
+        #print(cond_value)
         if type(record_value) != str:
             if cond_value.isnumeric():
                 cond_value = float(cond_value)
@@ -49,10 +52,10 @@ def evaluate_conditions(lst, record, field_indexes):
     
     if type(lst[0]) == list and len(lst) > 1 :   
         
-        operation = Constants.logical_operators[lst[1][0]]
+        operation = util.Constants.logical_operators[lst[1][0]]
         record_value = lst[0]
         cond_value = lst[2:]
-        result = operation(evaluate_conditions(record_value, record, field_indexes), evaluate_conditions(cond_value, record, field_indexes))
+        result = operation(evaluate_conditions(record_value, record), evaluate_conditions(cond_value, record))
       
         return result
 

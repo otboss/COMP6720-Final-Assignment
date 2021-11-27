@@ -1,8 +1,8 @@
 from typing import Set, List, Callable
 from model.Record import Record
-import crud_helpers as helper
+from util import working_directory
+import util.crud_helpers as crud_helpers
 import os
-from server.util import working_directory
 import util.binary_io as file_helper
 import json
 
@@ -20,7 +20,7 @@ def select(dbName:str, tableName: str, selectors: list[str], filters: str) -> li
         projections = selectors
 
         #break down conditions into a list
-        conditions_list =  helper.create_conds_lst(filters.split())
+        conditions_list =  crud_helpers.create_conds_lst(filters.split())
 
         #Evaluate each record
         select_lst = []
@@ -29,7 +29,7 @@ def select(dbName:str, tableName: str, selectors: list[str], filters: str) -> li
             return_record : Record  = Record()
             projected_record = {}
             for record in block["records"]:
-                result = helper.evaluate_conditions(conditions_list,record)
+                result = crud_helpers.evaluate_conditions(conditions_list,record)
                 if result:
                     for projection in projections:
                         projected_record[projection] =  record[projection]

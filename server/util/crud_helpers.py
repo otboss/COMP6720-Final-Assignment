@@ -1,8 +1,5 @@
-from util import Constants
+import util.constants
 from operator import lt, le, eq, ne, ge, gt, and_, or_
-import util.Constants 
-
-
 
 def create_conds_lst(lst):
     conditions_lst = []

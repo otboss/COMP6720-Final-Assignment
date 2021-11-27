@@ -84,9 +84,9 @@ class WebSocketController(WebSocket):
         query = request.query.replace(";", "")
         splittedQuery = query.split(" ")
 
-        if str.upper(splittedQuery[0]) == Privileges.INSERT.name or str.upper(splittedQuery[0]) == Privileges.UPDATE.name or str.upper(splittedQuery[0]) == Privileges.DELETE.name:
+        if splittedQuery[0].upper() == Privileges.INSERT.name or splittedQuery[0].upper() == Privileges.UPDATE.name or splittedQuery[0].upper() == Privileges.DELETE.name:
           lockingQueries.append(Query(request.database, request.query))
-          self.send_message('{"message": "Query appended to execution queue"}')
+          self.send_message('{"message": "Query is being processed"}')
           return
 
         parsed_query: ParsedQuery = query_parser.parser(query)
@@ -97,9 +97,9 @@ class WebSocketController(WebSocket):
         elif splittedQuery[0] == Privileges.SELECT.name:
           service.crud.read.select_records(request.database, parsed_query.table_name, parsed_query.selectors, parsed_query.filters)
         elif splittedQuery[0] == Privileges.CREATE.name:
-          if str.upper(splittedQuery[1]) == "DATABASE":
+          if splittedQuery[1].upper() == "DATABASE":
             service.crud.create.create_database(splittedQuery[2])
-          if str.upper(splittedQuery[1]) == "TABLE":
+          if splittedQuery[1].upper() == "TABLE":
             service.crud.create.create_table(request.database, parsed_query.table_name, parsed_query.selectors)
           if str.upper(splittedQuery[1]) == "INDEX":
             service.crud.create.create_table(splittedQuery[2], parsed_query.table_name, parsed_query.selectors)

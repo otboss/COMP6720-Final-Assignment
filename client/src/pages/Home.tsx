@@ -77,7 +77,6 @@ const Home: React.FC = () => {
         }
         setMessage("Unable to commit query");
         setQueryCompleted(true);
-        // setQuery("");
         return;
       }
 

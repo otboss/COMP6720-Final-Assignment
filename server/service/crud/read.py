@@ -7,9 +7,9 @@ import util.binary_io as file_helper
 import json
 
 
-def select(dbName:str, tableName: str, selectors: list[str], filters: str) -> list[Record]:
+def select_records(database_name:str, tableName: str, selectors: list[str], filters: str) -> list[Record]:
     wd = working_directory.load_working_directory()
-    file_path = wd + '/' + dbName + '/' + tableName
+    file_path = "%s/%s/%s"%(wd, database_name, tableName)
 
     if os.path.exists(file_path):
         #get file contents
@@ -44,14 +44,6 @@ def select(dbName:str, tableName: str, selectors: list[str], filters: str) -> li
         # return return_table 
     else:
         raise Exception("Table Does not Exist")  
-
-
-
-
-
-def select_records(db_name:str, table_name: str, selectors: list[str] , filters: list[str]) -> list[Record]:
-    pass
-
 
 
 def show_databases(working_directory: str) -> list[str]: 

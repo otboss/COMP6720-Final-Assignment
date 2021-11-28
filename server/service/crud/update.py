@@ -1,17 +1,18 @@
 from model.File import File
 from model.Record import Record
 import util.binary_io
+import util.working_directory
 import json
 
 
-def update_records(working_directory: str, database: str, table_name: str, selectors: str, filters: list[str]):
+def update_records(database: str, table_name: str, selectors: str, filters: list[str]):
   '''use table_name to locate the table file in the database folder then get all records and update records 
       where the conditions are met. Overwrite the file with new file containing the updates
 
       Return true or false indicating the success of the update
   '''  
-
-  table_path = "%s/%s/%s"%(working_directory, database, table_name)
+  working_dir = util.working_directory.load_working_directory()
+  table_path = "%s/%s/%s"%(working_dir, database, table_name)
 
   table_contents: str = util.binary_io.read_from_binary_file(table_path)
 

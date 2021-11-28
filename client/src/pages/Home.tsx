@@ -20,6 +20,9 @@ const Home: React.FC = () => {
   
   useEffect(() => {
     connection.onmessage = (message) => {
+      console.log(message);
+      setQueryCompleted(true);
+      setQuery("");
       try{
         const parsedMessage = JSON.parse(message.data);
         if(typeof(parsedMessage) != "object" || parsedMessage == null){
@@ -69,23 +72,21 @@ const Home: React.FC = () => {
             database,
           }));
           setMessage(`Changes commited successfully`);
-          setQueryCompleted(true);
           setQuery("");
           return;
         }
-        setMessage("No changes to commit");
+        setMessage("Unable to commit query");
         setQueryCompleted(true);
-        setQuery("");
+        // setQuery("");
         return;
       }
 
-      const commitQuery = lockingQueries.join(";");
-      for(let x = 0; x < commitQuery.length; x++){
+      for(let x = 0; x < lockingQueries.length; x++){
         while(!lastLockingQueryExecuted){
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
         connection.send(JSON.stringify({
-          query: commitQuery[x],
+          query: lockingQueries[x],
           token,
           database,
         }));
@@ -97,7 +98,7 @@ const Home: React.FC = () => {
       return;
     }
     
-    if(splittedQuery[0].toUpperCase() != "USE" && database == null){
+    if((splittedQuery[0].toUpperCase() == "CREATE" && splittedQuery[1].toUpperCase() == "DATABASE") == false && splittedQuery[0].toUpperCase() != "USE" && database == null){
       setMessage("ERROR 1046 (3D000): No database selected");
       setQueryCompleted(true);
       setQuery("");
@@ -116,7 +117,7 @@ const Home: React.FC = () => {
         ...lockingQueries,
         query,
       ]);
-      setMessage("Query stored, commit to apply changes");
+      setMessage("Query stored, commit to persist changes to remote database");
       setQueryCompleted(true);
       setQuery("");
       return;

@@ -15,6 +15,6 @@ class Block:
   @staticmethod
   def from_dict(block_dict: dict):
     block = Block()
-    block.records = block_dict["records"]
+    block.records = block_dict.get("records")
     return block
     

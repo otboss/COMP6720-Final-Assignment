@@ -1,11 +1,9 @@
+import uuid
 
-class Record:
-
-  def __init__(self, id: int, param1: str, param2: str):
-    self.id = id
-    self.param1 = param1
-    self.param2 = param2
-
-  @staticmethod
-  def from_dict(record: dict):
-    return Record(record["id"], record["param1"], record["param2"])
+# Record : A block record where each ID is a uuid4 string
+def Record(schema: list[str], values: list[str], id: str = str(uuid.uuid4())):
+  result = { 'id': id }
+  schema_without_id = schema[1:]
+  for x in range(0, len(schema_without_id)):
+    result[schema_without_id[x]] = values[x]
+  return result

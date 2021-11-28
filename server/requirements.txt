@@ -2,4 +2,3 @@
 simple-websocket-server==0.4.1 
 python-dotenv==0.19.1
 sqlvalidator==0.0.17
-asyncio==3.4.3

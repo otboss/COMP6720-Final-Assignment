@@ -1,23 +1,21 @@
 from model.Block import Block
+from model.Record import Record
+import json
+import copy
+
 
 #A file is basically a table, one is created whenever a table is created
 class File:
 
-    def __init__ (self, table_name: str, schema: list[str]):
-      self.data_items: list[Block] = [] #the list that will hold everything
+    #TODO: Update schema to be a list of Schema objects
+    def __init__(self, table_name: str, schema: list[str]):
+      self.data_items: list[Block] = []  # the list that will hold everything
       self.table_name = table_name
       self.schema = schema
-    
-    def table_str(self, field_name: list[str]):
-        col =[] #the list for column header
-        for i in field_name:
-            col.append(i)
-        self.data_items.append(col)
 
-    def add_block(self, block: Block): # blocks is a list of records, where each record is a list
-        for records in block:
-          for entry in records:
-            entry_keys = dict.keys(entry)
+    def add_block(self, block: Block):  # blocks is a list of records, where each record is a list
+        for record in block.records:
+            entry_keys = record.keys()
             if all(elem in self.schema for elem in entry_keys) == False:
               raise Exception("invalid block record provided, schema mismatch")
 
@@ -27,6 +25,14 @@ class File:
     @staticmethod
     def from_dict(file: dict):
       file_parsed = File(file["table_name"], file["schema"])
-      for block in file.data_items:
+      for block in file["data_items"]:
         file_parsed.add_block(Block.from_dict(block))
-      return file_parsed      
+      return file_parsed
+
+    def to_dict(self) -> dict:
+      file_dict = copy.copy(self.__dict__)
+
+      def parse_block(block: Block):
+        return block.__dict__
+      file_dict["data_items"] = list(map(parse_block, file_dict["data_items"]))
+      return file_dict

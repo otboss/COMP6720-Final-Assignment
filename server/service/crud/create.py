@@ -41,5 +41,13 @@ def insert_record (database: str, table_name: str, record: str):
     else:
         raise Exception("Table Does not Exist")
 
-def create_index(database: str, table_name: str, index: str):
-    pass
+def create_index(database: str, table_name: str, index_name: str, selectors: list[str]):
+    working_dir = util.working_directory.load_working_directory()
+    table_path = "%s/%s/%s"%(working_dir, database, table_name)
+    contents: File = File.from_dict(json.loads(binary_io.read_from_binary_file(table_path)))
+
+
+    # TODO:
+
+    index_path = "%s/%s/indices/%s/%s.bin"%(working_dir, database, table_name, index_name)
+    binary_io.write_to_binary_file(index_path, "")

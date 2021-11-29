@@ -1,8 +1,9 @@
 from model.FieldTypes import FieldTypes
 
 
-class Schema:
+Schema = str
+# class Schema:
   
-  def __init__(self, field: str, type: FieldTypes):
-    self.field = field
-    self.type = type
+#   def __init__(self, field: str, type: FieldTypes):
+#     self.field = field
+#     self.type = type

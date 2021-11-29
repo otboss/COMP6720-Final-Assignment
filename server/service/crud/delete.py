@@ -2,25 +2,27 @@ import shutil
 from typing import Set, List, Callable
 from model.Record import Record
 from model.Block import Block
+from util import working_directory
 import util.crud_helpers as helper
 import os
-from util import working_directory
 import util.binary_io as file_helper
 import json
 
-def drop_database(working_directory: str, database: str):
-  if(working_directory[-1] != "/"):
-    working_directory = working_directory + "/"
+def drop_database(database: str):
+  working_dir = working_directory.load_working_directory()
+  if(working_dir[-1] != "/"):
+    working_dir = working_dir + "/"
   shutil.rmtree(working_directory + database)
 
-def drop_table(working_directory: str, database: str, table_name: str):
-  if(working_directory[-1] != "/"):
-    working_directory = working_directory + "/"
+def drop_table(database: str, table_name: str):
+  working_dir = working_directory.load_working_directory()
+  if(working_dir[-1] != "/"):
+    working_dir = working_dir + "/"
   os.remove(working_directory + database + "/" + table_name + ".bin")
 
-def delete_records(dbName:str, tableName: str,filters: str):
-    wd = working_directory.load_working_directory()
-    file_path = wd + '/' + dbName + '/' + tableName
+def delete_records(database:str, table_name: str,filters: str):
+    working_dir = working_directory.load_working_directory()
+    file_path = "%s/%s/%s"%(working_dir, database, table_name)
 
     if os.path.exists(file_path):
         #get file contents

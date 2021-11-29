@@ -13,7 +13,6 @@ def select_records(database_name:str, table_name: str, selectors: list[str], fil
     working_dir = working_directory.load_working_directory()
     table_path = "%s/%s/%s"%(working_dir, database_name, table_name)
 
-    print("SELECTING RECORDS...", table_path)
     #TODO: Fix bugs
 
     if os.path.exists("%s.bin"%(table_path)):
@@ -34,18 +33,12 @@ def select_records(database_name:str, table_name: str, selectors: list[str], fil
         for block in contents_dict["data_items"]:
             return_record: Record
             projected_record = {}
-            print("OK 1")
             for record in block["records"]:
-                print("OK 2")
-                print("RECORD: ", conditions_list, record)
                 result = crud_helpers.evaluate_conditions(conditions_list, record)
                 if result:
-                    print("OK 3")
                     for projection in projections:
                         projected_record[projection] =  record[projection]
-                    print("OK 4")
                     return_record = Record.from_dict(projected_record)
-                    print("OK 5")
                     select_lst = select_lst + [return_record]
 
         return select_lst

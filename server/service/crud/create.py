@@ -47,7 +47,7 @@ def create_index(database: str, table_name: str, index_name: str, selectors: lis
     contents: File = File.from_dict(json.loads(binary_io.read_from_binary_file(table_path)))
 
 
-    # TODO:
+    # TODO: Implement create index function
 
     index_path = "%s/%s/indices/%s/%s.bin"%(working_dir, database, table_name, index_name)
     binary_io.write_to_binary_file(index_path, "")

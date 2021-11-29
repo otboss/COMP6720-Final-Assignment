@@ -1,14 +1,16 @@
 from model.Block import Block
 from model.Record import Record
+from model.Schema import Schema
 import json
 import copy
+
 
 
 #A file is basically a table, one is created whenever a table is created
 class File:
 
     #TODO: Update schema to be a list of Schema objects
-    def __init__(self, table_name: str, schema: list[str]):
+    def __init__(self, table_name: str, schema: list[Schema]):
       self.data_items: list[Block] = []  # the list that will hold everything
       self.table_name = table_name
       self.schema = schema

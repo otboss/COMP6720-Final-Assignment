@@ -8,3 +8,5 @@ class Privileges(Enum):
     CREATE = 5,
     SHOW = 6,
     DROP = 7,
+    ALTER = 8,
+    DESCRIBE=9,

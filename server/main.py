@@ -3,11 +3,13 @@ from model.Request import Request
 from model.Privileges import Privileges
 from model.ParsedQuery import ParsedQuery
 from model.Query import Query
+from exception.InvalidQueryError import InvalidQueryError
 from util import binary_io
 from simple_websocket_server import WebSocketServer, WebSocket
 from util.working_directory import load_working_directory, create_working_directory
 from util import query_parser
 from math import trunc
+from threading import Thread
 import service.authentication_service
 import os
 import sqlvalidator
@@ -18,7 +20,6 @@ import service.crud.read
 import datetime
 import json
 import time
-from threading import Thread
 
 working_directory = ""
 try:
@@ -34,13 +35,13 @@ else:
   load_dotenv("./dev.env")
 
 
-lockingQueries: list[Query] = []
+locking_queries: list[Query] = []
 
-def lockingQueriesChecker():
-  global lockingQueries
+def locking_queriesChecker():
+  global locking_queries
   while True:
     try:
-      current_query: Query = lockingQueries[0]
+      current_query: Query = locking_queries[0]
       parsed_query = query_parser.parser(current_query.query)
       working_dir = load_working_directory()
       table_lock_file = "%s/%s/.%s-lock"%(working_dir, current_query.database, parsed_query.table_name)
@@ -56,11 +57,11 @@ def lockingQueriesChecker():
     except Exception as e:
       if str(e) != "list index out of range":
         print(e)
-    lockingQueries = lockingQueries[1:]
+    locking_queries = locking_queries[1:]
     time.sleep(1)
 
-lockingQueriesCheckerThread = Thread(target=lockingQueriesChecker)
-lockingQueriesCheckerThread.start()
+locking_queriesCheckerThread = Thread(target=locking_queriesChecker)
+locking_queriesCheckerThread.start()
 
 class WebSocketController(WebSocket):
 
@@ -82,35 +83,52 @@ class WebSocketController(WebSocket):
           #   return
 
           if sqlvalidator.parse(request.query) == False:
-            self.send_message("Invalid sql query")
-            return
+            raise InvalidQueryError("invalid sql query provided")
 
           query = request.query.replace(";", "")
-          splittedQuery = query.split(" ")
+          splitted_query = query.split(" ")
 
-          if splittedQuery[0].upper() == Privileges.INSERT.name or splittedQuery[0].upper() == Privileges.UPDATE.name or splittedQuery[0].upper() == Privileges.DELETE.name:
+          if splitted_query[0].upper() == Privileges.INSERT.name or splitted_query[0].upper() == Privileges.UPDATE.name or splitted_query[0].upper() == Privileges.DELETE.name:
             query_obj = Query(request.database, request.query)
-            lockingQueries.append(query_obj)
-            self.send_message('{"message": "Query is being processed"}')
+            locking_queries.append(query_obj)
             return
 
           parsed_query: ParsedQuery = query_parser.parser(query)
+          message = "Query is being processed"
 
-          if splittedQuery[0] == Privileges.SHOW.name:
-            if splittedQuery[1].upper() == "DATABASES":
-              service.crud.read.show_databases(working_directory)
-          elif splittedQuery[0] == Privileges.SELECT.name:
-            service.crud.read.select_records(request.database, parsed_query.table_name, parsed_query.selectors, parsed_query.filters)
-          elif splittedQuery[0] == Privileges.CREATE.name:
-            if splittedQuery[1].upper() == "DATABASE":
-              service.crud.create.create_database(splittedQuery[2])
-            if splittedQuery[1].upper() == "TABLE":
+          if splitted_query[0].upper() == Privileges.SHOW.name:
+            if splitted_query[1].upper() == "DATABASES":
+              self.send_message(json.dumps(service.crud.read.show_databases()))
+              return
+          elif splitted_query[0].upper() == Privileges.SELECT.name:
+            self.send_message(json.dumps(service.crud.read.select_records(request.database, parsed_query.table_name, parsed_query.selectors, parsed_query.filters)))
+            return
+          elif splitted_query[0].upper() == Privileges.DESCRIBE.name:
+            self.send_message(json.dumps(service.crud.read.describe_table(request.database, parsed_query.table_name)))
+            return
+          elif splitted_query[0].upper() == Privileges.CREATE.name:
+            if splitted_query[1].upper() == "DATABASE":
+              service.crud.create.create_database(splitted_query[2])
+              message = "Database %s created"%(splitted_query[2])
+            if splitted_query[1].upper() == "TABLE":
               service.crud.create.create_table(request.database, parsed_query.table_name, parsed_query.selectors)
-            if splittedQuery[1].upper() == "INDEX":
-              service.crud.create.create_index(splittedQuery[2], parsed_query.table_name, parsed_query.selectors)
-          self.send_message('{"message": "Query is being processed"}')
+              message = "Table %s created"%(parsed_query.table_name)
+            if splitted_query[1].upper() == "INDEX":
+              service.crud.create.create_index(splitted_query[2], parsed_query.table_name, parsed_query.selectors)
+              message = "Index %s created"%(splitted_query[2])
+          elif splitted_query[0] == Privileges.DROP.name:
+            if splitted_query[1].upper() == "DATABASE":
+              service.crud.delete.drop_database(splitted_query[2])
+              message = "Database %s dropped"%(splitted_query[2])
+            if splitted_query[1].upper() == "TABLE":
+              service.crud.delete.drop_table(request.database, parsed_query.table_name, parsed_query.selectors)
+              message = "Table '%s' dropped"%(parsed_query.table_name)
+          
+          self.send_message('{"message": "%s"}'%(message))
+          
         except Exception as e:
-          self.send_message('{"error": %s, "message": "Query could not be processed"}'%(e))
+          print("Error: ", str(e))
+          self.send_message('{"error": "%s", "message": "Query could not be processed"}'%(e))
 
     def connected(self):
         print(self.address, 'connected')

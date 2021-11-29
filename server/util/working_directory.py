@@ -25,4 +25,8 @@ def load_working_directory() -> str:
 def create_sub_folder(folder_name):
     sub_path = load_working_directory() + "/" + folder_name
     os.mkdir(sub_path)
+
+def create_index_folder(database: str, table_name: str):
+    incides_folder_path = "%s/%s/indices/%s"%(load_working_directory(), database, table_name)
+    os.mkdir(incides_folder_path)
        

@@ -1,5 +1,6 @@
 from enum import Enum
 
+# Privileges : The privileges that are grantable to users
 class Privileges(Enum):
     SELECT = 1,
     UPDATE = 2,

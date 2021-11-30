@@ -1,10 +1,11 @@
 from model.Privileges import Privileges
 
-
+# ParsedQuery : Structures the components of a query after it has been parsed
 class ParsedQuery:
   database: str = None
   table_name: str = None
   index: str = None
+  values: list[str] = []
   operation: Privileges = None
   selectors: list[str] = []
   filters: list[str] = []
@@ -19,12 +20,13 @@ class ParsedQuery:
     return query
 
   @staticmethod
-  def update(table_name: str, selectors: list[str], filters: list[str] = []):
+  def update(table_name: str, selectors: list[str], values: list[str], filters: list[str] = []):
     query = ParsedQuery
     query.operation = Privileges.UPDATE
     query.table_name = table_name
     query.selectors = selectors
     query.filters = filters
+    query.values = values
     return query
 
   @staticmethod
@@ -73,5 +75,12 @@ class ParsedQuery:
     query = ParsedQuery
     query.operation = Privileges.DROP
     query.database = database
+    query.table_name = table_name
+    return query
+
+  @staticmethod
+  def describe(table_name: str):
+    query = ParsedQuery
+    query.operation = Privileges.DESCRIBE
     query.table_name = table_name
     return query

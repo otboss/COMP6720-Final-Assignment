@@ -4,8 +4,8 @@ import { Queries } from '../model/Queries';
 import { QueryActions } from '../model/QueryActions';
 import './Home.css';
 
-const username = prompt("Enter Username:");
-const password = prompt("Enter Password:");
+const username = null;//prompt("Enter Username:");
+const password = null;//prompt("Enter Password:");
 const connection = new WebSocket("ws://localhost:5000");
 
 const Home: React.FC = () => {
@@ -97,7 +97,7 @@ const Home: React.FC = () => {
       return;
     }
     
-    if((splittedQuery[0].toUpperCase() == "CREATE" && splittedQuery[1].toUpperCase() == "DATABASE") == false && splittedQuery[0].toUpperCase() != "USE" && database == null){
+    if((splittedQuery[0].toUpperCase() == "CREATE" && splittedQuery[1].toUpperCase() == "DATABASE") == false && splittedQuery[0].toUpperCase() != "USE" && (splittedQuery[0].toUpperCase() != "SHOW" && splittedQuery[1].toUpperCase() != "DATABASES") && database == null){
       setMessage("ERROR 1046 (3D000): No database selected");
       setQueryCompleted(true);
       setQuery("");

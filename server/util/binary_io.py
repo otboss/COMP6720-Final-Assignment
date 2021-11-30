@@ -19,5 +19,5 @@ def read_from_binary_file(file_name: str) -> str:
 def delete_binary_file(file_name: str) -> str:
   try:
     os.remove("%s.bin"%(file_name))
-  except:
-    pass
+  except Exception as e:
+    print(str(e))

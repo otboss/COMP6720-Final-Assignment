@@ -10,7 +10,7 @@ from util.working_directory import load_working_directory, create_working_direct
 from util import query_parser
 from math import trunc
 from threading import Thread
-import service.authentication_service
+import service.authentication
 import os
 import sqlvalidator
 import service.crud.delete
@@ -50,7 +50,7 @@ def locking_queriesChecker():
       if parsed_query.operation == Privileges.INSERT:
         service.crud.create.insert_record(current_query.database, parsed_query.table_name, parsed_query.selectors)
       elif parsed_query.operation == Privileges.UPDATE:
-        service.crud.update.update_records(current_query.database, parsed_query.table_name, parsed_query.selectors, parsed_query.filters)
+        service.crud.update.update_records(current_query.database, parsed_query.table_name, parsed_query.selectors, parsed_query.values, parsed_query.filters)
       elif parsed_query.operation == Privileges.DELETE:
         service.crud.delete.delete_records(current_query.database, parsed_query.table_name, parsed_query.filters)
       binary_io.delete_binary_file(table_lock_file)
@@ -60,8 +60,8 @@ def locking_queriesChecker():
     locking_queries = locking_queries[1:]
     time.sleep(1)
 
-locking_queriesCheckerThread = Thread(target=locking_queriesChecker)
-locking_queriesCheckerThread.start()
+locking_queries_checker_thread = Thread(target=locking_queriesChecker)
+locking_queries_checker_thread.start()
 
 class WebSocketController(WebSocket):
 
@@ -73,32 +73,29 @@ class WebSocketController(WebSocket):
             self.send_message("")
             return
 
-          # try:
-          #   request.token = service.authentication_service.authenticate_user(request)
-          #   if type(request.username) == str or type(request.password):
-          #     self.send_message(request.token)
-          #     return
-          # except:
-          #   self.send_message('{"error": "Unauthorized access. Are you logged in?"}')
-          #   return
+          # TODO: Insert user authentication here
 
           if sqlvalidator.parse(request.query) == False:
             raise InvalidQueryError("invalid sql query provided")
 
           query = request.query.replace(";", "")
           splitted_query = query.split(" ")
+          message = "Query is being processed"
 
           if splitted_query[0].upper() == Privileges.INSERT.name or splitted_query[0].upper() == Privileges.UPDATE.name or splitted_query[0].upper() == Privileges.DELETE.name:
             query_obj = Query(request.database, request.query)
             locking_queries.append(query_obj)
+            self.send_message('{"message": "%s"}'%(message))
             return
 
           parsed_query: ParsedQuery = query_parser.parser(query)
-          message = "Query is being processed"
 
           if splitted_query[0].upper() == Privileges.SHOW.name:
             if splitted_query[1].upper() == "DATABASES":
               self.send_message(json.dumps(service.crud.read.show_databases()))
+              return
+            if splitted_query[1].upper() == "TABLES":
+              self.send_message(json.dumps(service.crud.read.show_tables(request.database)))
               return
           elif splitted_query[0].upper() == Privileges.SELECT.name:
             self.send_message(json.dumps(service.crud.read.select_records(request.database, parsed_query.table_name, parsed_query.selectors, parsed_query.filters)))
@@ -109,21 +106,22 @@ class WebSocketController(WebSocket):
           elif splitted_query[0].upper() == Privileges.CREATE.name:
             if splitted_query[1].upper() == "DATABASE":
               service.crud.create.create_database(splitted_query[2])
-              message = "Database %s created"%(splitted_query[2])
+              message = "Database '%s' created"%(splitted_query[2])
             if splitted_query[1].upper() == "TABLE":
               service.crud.create.create_table(request.database, parsed_query.table_name, parsed_query.selectors)
-              message = "Table %s created"%(parsed_query.table_name)
+              message = "Table '%s' created"%(parsed_query.table_name)
             if splitted_query[1].upper() == "INDEX":
-              service.crud.create.create_index(splitted_query[2], parsed_query.table_name, parsed_query.selectors)
-              message = "Index %s created"%(splitted_query[2])
+              service.crud.create.create_index(request.database, parsed_query.table_name, parsed_query.index, parsed_query.selectors)
+              message = "Index '%s' created"%(splitted_query[2])
           elif splitted_query[0] == Privileges.DROP.name:
             if splitted_query[1].upper() == "DATABASE":
               service.crud.delete.drop_database(splitted_query[2])
-              message = "Database %s dropped"%(splitted_query[2])
+              message = "Database '%s' dropped"%(splitted_query[2])
             if splitted_query[1].upper() == "TABLE":
-              service.crud.delete.drop_table(request.database, parsed_query.table_name, parsed_query.selectors)
+              service.crud.delete.drop_table(request.database, parsed_query.table_name)
               message = "Table '%s' dropped"%(parsed_query.table_name)
-          
+          else:
+            raise Exception("Unsupported query")
           self.send_message('{"message": "%s"}'%(message))
           
         except Exception as e:

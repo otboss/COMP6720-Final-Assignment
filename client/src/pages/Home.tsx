@@ -97,7 +97,7 @@ const Home: React.FC = () => {
       return;
     }
     
-    if((splittedQuery[0].toUpperCase() == "CREATE" && splittedQuery[1].toUpperCase() == "DATABASE") == false && splittedQuery[0].toUpperCase() != "USE" && database == null){
+    if((splittedQuery[0].toUpperCase() == "CREATE" && splittedQuery[1].toUpperCase() == "DATABASE") == false && splittedQuery[0].toUpperCase() != "USE" && (splittedQuery[0].toUpperCase() != "SHOW" && splittedQuery[1].toUpperCase() != "DATABASES") && database == null){
       setMessage("ERROR 1046 (3D000): No database selected");
       setQueryCompleted(true);
       setQuery("");

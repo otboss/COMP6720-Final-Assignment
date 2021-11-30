@@ -1,5 +1,6 @@
 from enum import Enum
 
+# Request : Structures incoming data from clients
 class Request:
     username: str
     password: str

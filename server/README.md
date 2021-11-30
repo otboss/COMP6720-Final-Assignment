@@ -3,6 +3,7 @@
 For production environment place .env file in the server folder
 
 <h3>Getting Started</h3>
+Usage of a virtual environment (venv) is recommended.
 <ol>
   <li>
     Install dependencies
@@ -31,24 +32,43 @@ sample response:
 
 <br>
 <h3>Executing SQL query</h3>
-Running an SQL query:
-<pre>{
-  "query": "SELECT * FROM accounts",
-  "token": "e56776d804ec9ded366b71aa6f196b954bf7d2da1837a95a66ec3a6e3eea9e02"
-}</pre>
+Here are some sample queries. The format of queries are strict. Follow the format exactly as seen in the sample queries provided
+
+<pre>SHOW DATABASES</pre>
+
+sample response:
+<pre>["forrest", "company"]</pre>
+
+<pre>USE company</pre>
+
+sample response:
+<pre>Database changed</pre>
+
+<pre>SHOW TABLES</pre>
+
+sample response:
+<pre>["students"]</pre>
+
+
+<pre>SELECT name , school FROM students WHERE name = 'pam'" "Select name from student where n > b</pre>
 
 sample response:
 <pre>[
   {
-    "id": 1,
-    "user": "Alice",
-    "account_no": 12345
+    "name": "Alice",
+    "school": 12345
   },
   {
-    "id": 2,
-    "user": "Blake",
-    "account_no": 54321
+    "name": "Blake",
+    "school": 54321
   }
 ]</pre>
 
-Select queries are truncated to 10000 results
+
+
+<pre>INSERT INTO students VALUES ( 1, 'Pam', 'The University of the West Indies' )</pre>
+
+sample response:
+<pre>{"message": "Query is being processed"}</pre>
+
+

@@ -34,7 +34,8 @@ sample response:
 
 sample response:
 <pre>Database changed</pre>
-
+<br>
+<br>
 <pre>SHOW TABLES</pre>
 
 sample response:

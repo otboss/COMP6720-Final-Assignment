@@ -18,17 +18,7 @@ Usage of a virtual environment (venv) is recommended.
 
 <h3>Connecting</h3>
 Connecting to the server using a JavaScript web socket client
-<pre>const client = new WebSocket("ws://localhost:5001/")</pre>
-
-<h3>Logging in</h3>
-Generating a new session token:
-<pre>{
-  "username": "root",
-  "password": "root"
-}</pre>
-
-sample response: 
-<pre>e56776d804ec9ded366b71aa6f196b954bf7d2da1837a95a66ec3a6e3eea9e02</pre>
+<pre>const client = new WebSocket("ws://localhost:5000/")</pre>
 
 <br>
 <h3>Executing SQL query</h3>

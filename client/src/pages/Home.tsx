@@ -4,8 +4,8 @@ import { Queries } from '../model/Queries';
 import { QueryActions } from '../model/QueryActions';
 import './Home.css';
 
-const username = prompt("Enter Username:");
-const password = prompt("Enter Password:");
+const username = null;//prompt("Enter Username:");
+const password = null;//prompt("Enter Password:");
 const connection = new WebSocket("ws://localhost:5000");
 
 const Home: React.FC = () => {

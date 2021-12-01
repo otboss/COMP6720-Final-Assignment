@@ -1,5 +1,6 @@
-from model.Record import  Record
+import copy
 
+# Block : Stored by Files and used to store Records
 class Block:
   records = []
 
@@ -17,4 +18,7 @@ class Block:
     block = Block()
     block.records = block_dict.get("records")
     return block
+
+  def to_dict(self) -> dict:
+    return copy.copy(self.__dict__)
     

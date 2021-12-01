@@ -28,7 +28,8 @@ Here are some sample queries. The format of queries are strict. Follow the forma
 
 sample response:
 <pre>["forrest", "company"]</pre>
-
+<br>
+<br>
 <pre>USE company</pre>
 
 sample response:
@@ -39,6 +40,8 @@ sample response:
 sample response:
 <pre>["students"]</pre>
 
+<br>
+<br>
 
 <pre>SELECT name , school FROM students WHERE name = 'pam'" "Select name from student where n > b</pre>
 
@@ -54,6 +57,8 @@ sample response:
   }
 ]</pre>
 
+<br>
+<br>
 
 
 <pre>INSERT INTO students VALUES ( 1, 'Pam', 'The University of the West Indies' )</pre>

@@ -14,7 +14,7 @@ def drop_database(database: str):
   working_dir = working_directory.load_working_directory()
   if(working_dir[-1] != "/"):
     working_dir = working_dir + "/"
-  shutil.rmtree(working_directory + database)
+  shutil.rmtree("%s%s",working_directory, database)
 
 def drop_table(database: str, table_name: str):
   working_dir = working_directory.load_working_directory()

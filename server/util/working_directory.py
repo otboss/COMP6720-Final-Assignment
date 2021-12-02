@@ -6,12 +6,11 @@ db_path_file = "./db_path.txt"
 def create_working_directory():
     working_directory_path: str = "./%s-db"%(sys.argv[1]) if len(sys.argv) > 1 else "./default-db"
     try:
-        if os.access(working_directory_path, os.W_OK) == False:
+        if os.access(working_directory_path[0:working_directory_path.rfind("/")], os.W_OK) == False:
             sys.exit("Provided working directory path not accessible")
         os.mkdir(working_directory_path)
-    except:
-        # Working directory already exits, do nothing
-        pass
+    except Exception as e:
+        print(str(e))
     file = open(db_path_file, "w")
     file.write(working_directory_path)
     file.close()

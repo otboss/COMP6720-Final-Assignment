@@ -1,4 +1,4 @@
-<h1>COMP6720 - Final Assignment</h1>
+<h1>Python DBMS</h1>
 
 <h3>Getting Started</h3>
 <ol>

@@ -1,0 +1,25 @@
+CREATE DATABASE demo
+USE demo
+
+SHOW TABLES
+
+CREATE TABLE students ( id INT, name STRING, school STRING )
+
+SHOW TABLES
+
+DESCRIBE students
+
+
+
+CREATE INDEX name_index on students(name)
+
+INSERT INTO students VALUES ( 'Pam', 'UWI' )
+
+SELECT name , school FROM students
+
+
+SELECT name , school FROM students WHERE name = 'Pam'
+
+UPDATE students SET name = 'Pamelita' WHERE id=''
+
+DELETE FROM students WHERE id = ''
